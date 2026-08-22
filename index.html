@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Nutrition & Health Tracker</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --primary: #4a90e2;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 0;
+            font-size: 24px;
+            color: #2c3e50;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], input[type="number"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        input[type="number"] {
+            max-width: 90px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .totals-banner {
+            display: flex;
+            justify-content: space-between;
+            background: #eef2f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        .total-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .total-item span {
+            display: block;
+            font-size: 20px;
+            color: var(--primary);
+            margin-top: 5px;
+        }
+
+        .log-list {
+            margin-top: 20px;
+        }
+
+        .log-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .food-info {
+            flex: 1;
+        }
+
+        .food-name {
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .food-macros {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .healthy { background-color: var(--success); }
+        .moderate { background-color: var(--warning); color: #333; }
+        .unhealthy { background-color: var(--danger); }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 18px;
+            margin-left: 15px;
+        }
+
+        .remove-btn:hover {
+            color: var(--danger);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Food & Nutrition Log</h1>
+    
+    <!-- Totals Display -->
+    <div class="totals-banner">
+        <div class="total-item">
+            Calories Consumed
+            <span id="total-calories">0 kcal</span>
+        </div>
+        <div class="total-item">
+            Fat Consumed
+            <span id="total-fat">0 g</span>
+        </div>
+    </div>
+
+    <!-- Search/Input Form -->
+    <div class="search-box">
+        <input type="text" id="food-input" placeholder="Type a food (e.g., Apple, Pizza, Avocado)..." autocomplete="off">
+        <input type="number" id="grams-input" placeholder="Grams" value="100" min="1">
+        <button id="add-btn">Add</button>
+    </div>
+
+    <!-- Logged Items Container -->
+    <div class="log-list" id="log-list">
+        <div class="empty-state" id="empty-state">No food logged yet today.</div>
+    </div>
+</div>
+
+<script>
+    // Local dictionary containing nutrient data per 100g
+    // healthRating: 1 = Healthy, 2 = Moderate, 3 = Unhealthy (based on calorie/fat density & processing)
+    const foodDatabase = {
+        "apple": { calories: 52, fat: 0.2, rating: "Healthy", class: "healthy" },
+        "banana": { calories: 89, fat: 0.3, rating: "Healthy", class: "healthy" },
+        "chicken breast": { calories: 165, fat: 3.6, rating: "Healthy", class: "healthy" },
+        "salmon": { calories: 208, fat: 13, rating: "Healthy", class: "healthy" },
+        "avocado": { calories: 160, fat: 15, rating: "Healthy", class: "healthy" },
+        "broccoli": { calories: 34, fat: 0.4, rating: "Healthy", class: "healthy" },
+        "egg": { calories: 155, fat: 11, rating: "Healthy", class: "healthy" },
+        "almonds": { calories: 579, fat: 49, rating: "Healthy", class: "healthy" },
+        "rice": { calories: 130, fat: 0.3, rating: "Healthy", class: "healthy" },
+        "oats": { calories: 389, fat: 6.9, rating: "Healthy", class: "healthy" },
+        
+        "milk": { calories: 42, fat: 1.0, rating: "Moderate", class: "moderate" },
+        "bread": { calories: 265, fat: 3.2, rating: "Moderate", class: "moderate" },
+        "cheese": { calories: 402, fat: 33, rating: "Moderate", class: "moderate" },
+        "beef": { calories: 250, fat: 15, rating: "Moderate", class: "moderate" },
+        
+        "pizza": { calories: 266, fat: 10, rating: "Unhealthy", class: "unhealthy" },
+        "burger": { calories: 295, fat: 14, rating: "Unhealthy", class: "unhealthy" },
+        "french fries": { calories: 312, fat: 15, rating: "Unhealthy", class: "unhealthy" },
+        "potato chips": { calories: 536, fat: 35, rating: "Unhealthy", class: "unhealthy" },
+        "chocolate": { calories: 546, fat: 31, rating: "Unhealthy", class: "unhealthy" },
+        "soda": { calories: 41, fat: 0, rating: "Unhealthy", class: "unhealthy" }
+    };
+
+    // Fallback generator for foods not explicitly listed in the dictionary
+    function generateDynamicFood(name) {
+        return {
+            calories: 120, 
+            fat: 5.0, 
+            rating: "Moderate", 
+            class: "moderate"
+        };
+    }
+
+    // State Variables
+    let loggedFoods = [];
+    let totalCalories = 0;
+    let totalFat = 0;
+
+    // DOM Elements
+    const foodInput = document.getElementById('food-input');
+    const gramsInput = document.getElementById('grams-input');
+    const addBtn = document.getElementById('add-btn');
+    const logList = document.getElementById('log-list');
+    const emptyState = document.getElementById('empty-state');
+    const totalCalDisplay = document.getElementById('total-calories');
+    const totalFatDisplay = document.getElementById('total-fat');
+
+    // Action execution
+    addBtn.addEventListener('click', addFoodItem);
+    foodInput.addEventListener('keypress', function(e) {
+        if (e.key === 'keyEnter' || e.key === 'Enter') addFoodItem();
+    });
+
+    function addFoodItem() {
+        const query = foodInput.value.trim().toLowerCase();
+        const grams = parseFloat(gramsInput.value);
+
+        if (!query) {
+            alert('Please type a food name.');
+            return;
+        }
+        if (isNaN(grams) || grams <= 0) {
+            alert('Please enter a valid weight in grams.');
+            return;
+        }
+
+        // Search database or create dynamic fallback
+        let foodMatch = foodDatabase[query];
+        if (!foodMatch) {
+            foodMatch = generateDynamicFood(query);
+        }
+
+        // Calculate based on custom weight input
+        const multiplier = grams / 100;
+        const calculatedCal = Math.round(foodMatch.calories * multiplier);
+        const calculatedFat = parseFloat((foodMatch.fat * multiplier).toFixed(1));
+
+        const newItem = {
+            id: Date.now(),
+            name: query,
+            grams: grams,
+            calories: calculatedCal,
+            fat: calculatedFat,
+            rating: foodMatch.rating,
+            class: foodMatch.class
+        };
+
+        loggedFoods.push(newItem);
+        updateUI();
+        
+        // Reset input fields
+        foodInput.value = '';
+        gramsInput.value = '100';
+        foodInput.focus();
+    }
+
+    function removeFoodItem(id) {
+        loggedFoods = loggedFoods.filter(item => item.id !== id);
+        updateUI();
+    }
+
+    function updateUI() {
+        // Clear old list items except the empty state
+        const items = logList.querySelectorAll('.log-item');
+        items.forEach(item => item.remove());
+
+        if (loggedFoods.length === 0) {
+            emptyState.style.display = 'block';
+            totalCalDisplay.textContent = '0 kcal';
+            totalFatDisplay.textContent = '0 g';
+            return;
+        }
+
+        emptyState.style.display = 'none';
+        totalCalories = 0;
+        totalFat = 0;
+
+        loggedFoods.forEach(item => {
+            totalCalories += item.calories;
+            totalFat += item.fat;
+
+            const row = document.createElement('div');
+            row.className = 'log-item';
+            row.innerHTML = `
+                <div class="food-info">
