@@ -2,7 +2,7 @@
 
 A lightweight, single-page web application to track your daily food consumption, calculate total calorie and fat intake, and view automated healthiness ratings.
 
-Built entirely with clean HTML, CSS, and vanilla JavaScript—no external dependencies, frameworks, or internet connection required.
+Built entirely with clean HTML, frameworks, or internet connection required.
 
 ## Features
 
