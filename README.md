@@ -25,8 +25,7 @@ Since this application is bundled into a single file, setup takes less than a mi
 The codebase consolidates three critical web layers into one easily manageable asset:
 
 * **Markup (`HTML5`):** Structuring the inputs, numerical tallies, and logged lists.
-* **Styling (`CSS3`):** Featuring custom properties (variables), native Flexbox layout components, and keyframe animations for a fluid, responsive UI.
-* **Logic (`JavaScript/ES6`):** Powers the local structural database dictionary, handles real-time algebraic scaling calculations, and reactively repopulates DOM elements.
+
 
 ## 📊 Expanding the Food Database
 
