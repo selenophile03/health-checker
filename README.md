@@ -4,7 +4,7 @@ A lightweight, single-page web application to track your daily food consumption,
 
 Built entirely with clean HTML, CSS, and vanilla JavaScript—no external dependencies, frameworks, or internet connection required.
 
-## 🚀 Features
+## Features
 
 * **Instant Search & Log:** Type a food item, specify the weight in grams, and log it instantly.
 * **Proportional Scaling:** Dynamically calculates precise nutrition metrics based on custom food weights.
@@ -12,7 +12,7 @@ Built entirely with clean HTML, CSS, and vanilla JavaScript—no external depend
 * **Live Aggregates:** Keeps a running tally of your total calories and fat consumed.
 * **Removable Entries:** Quickly delete logged entries to correct mistakes.
 
-## 🛠️ Quick Start Guide
+##  Quick Start Guide
 
 Since this application is bundled into a single file, setup takes less than a minute:
 
@@ -26,18 +26,5 @@ The codebase consolidates three critical web layers into one easily manageable a
 
 * **Markup (`HTML5`):** Structuring the inputs, numerical tallies, and logged lists.
 
-
-## 📊 Expanding the Food Database
-
-The engine matches user text strings against an internal key-value map. To expand the app's vocabulary, look for the `foodDatabase` object inside the `<script>` tags and add your custom entries using this per-100g structure:
-
-```javascript
-"avocado": { 
-    calories: 160, 
-    fat: 15, 
-    rating: "Healthy", 
-    class: "healthy" 
-}
-```
 
 *Note: If an entry is typed that isn't inside the database, the app smoothly generates a balanced, mid-range fallback entry so your workflow is never interrupted.*
